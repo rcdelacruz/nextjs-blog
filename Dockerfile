@@ -3,9 +3,8 @@ WORKDIR '/app'
 COPY package.json .
 RUN npm install
 COPY . .
-RUN npm run build
+RUN npm run build && npm start
 
-RUN ls -la $WORKDIR
-FROM nginx
-COPY --from=builder /app/.next/server/pages /usr/share/nginx/html
+#FROM nginx
+#COPY --from=builder /app/.next/server/pages /usr/share/nginx/html
 #CMD ["npm","start"]

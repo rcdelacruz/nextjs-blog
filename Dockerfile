@@ -13,10 +13,13 @@ FROM node:12.18.3-alpine
 ARG NODE_ENV="production"
 ENV NODE_ENV=${NODE_ENV}
 
-WORKDIR /app
-
+WORKDIR '/app'
+COPY package.json .
+RUN npm install
 # This docker file will copy code from app directory
 # including the node_modules and .next folder.
+COPY . .
+RUN npm run build
 COPY . .
 
 EXPOSE 3000

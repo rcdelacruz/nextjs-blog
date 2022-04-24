@@ -6,5 +6,5 @@ COPY . .
 RUN npm run build
 
 FROM nginx
-COPY /app/.next/server/pages /usr/share/nginx/html
+COPY .next/server/pages /usr/share/nginx/html
 #CMD ["npm","start"]

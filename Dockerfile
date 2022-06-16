@@ -1,57 +1,23 @@
-# Install dependencies only when needed
-FROM node:16-alpine AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-COPY package.json yarn.lock* ./
-RUN yarn install --frozen-lockfile
+FROM node:12
 
-# INSTALL cURL
-RUN apk --no-cache add curl
+ENV PORT 8080
 
-# If using npm with a `package-lock.json` comment out above and use below instead
-# COPY package.json package-lock.json ./ 
-# RUN npm ci
+# Create app directory
+RUN mkdir /var/movable/ && mkdir /var/movable/app
+WORKDIR /var/movable/app
 
-# Rebuild the source code only when needed
-FROM node:16-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+RUN rm -rf .next*
+# Installing dependencies
+COPY package*.json /var/movable/app/
+RUN npm install
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
+# Copying source files
+COPY . /var/movable/app
 
-RUN yarn build
 
-# If using npm comment out above and use below instead
-# RUN npm run build
+# Building app
+RUN npm run build
+EXPOSE 8080
 
-# Production image, copy all the files and run next
-FROM node:16-alpine AS runner
-WORKDIR /app
-
-ENV NODE_ENV production
-# Uncomment the following line in case you want to disable telemetry during runtime.
-# ENV NEXT_TELEMETRY_DISABLED 1
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder --chown=nextjs:nodejs /app/package.json /app/yarn.lock* ./
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-
-# 4. OPTIONALLY the next.config.js, if your app has one
-COPY --from=builder --chown=nextjs:nodejs /app/next.config.js  ./
-
-USER nextjs
-
-EXPOSE 3000
-
-ENV PORT 3000
-
-CMD ["yarn", "start"]
+# Running the app
+CMD "npm" "run" "start_prod"

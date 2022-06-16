@@ -18,6 +18,9 @@ RUN yarn install --frozen-lockfile
 
 # END DEPS IMAGE
 
+# INSTALL cURL
+RUN apk --no-cache add curl
+
 # Now we make a container to handle our Build
 FROM node:16-alpine AS BUILD_IMAGE
 

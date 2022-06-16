@@ -6,6 +6,9 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
+# INSTALL cURL
+RUN apk --no-cache add curl
+
 # If using npm with a `package-lock.json` comment out above and use below instead
 # COPY package.json package-lock.json ./ 
 # RUN npm ci

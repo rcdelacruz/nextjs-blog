@@ -13,7 +13,7 @@ FROM node:16-alpine AS deps
 # so that this `yarn install` layer is only recomputed
 # if these dependency files change. Nice speed hack!
 WORKDIR /app
-COPY package.json yarn.lock* ./
+COPY package.json package-lock* ./
 RUN yarn install --frozen-lockfile
 
 # END DEPS IMAGE
@@ -29,12 +29,12 @@ WORKDIR /app
 # server for production
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN yarn build
+RUN npm run build
 
 # Remove all the development dependencies since we don't
 # need them to run the actual server.
 RUN rm -rf node_modules
-RUN yarn install --production --frozen-lockfile --ignore-scripts --prefer-offline
+RUN npm install 
 
 # END OF BUILD_IMAGE
 
@@ -51,18 +51,18 @@ RUN adduser -S nextjs -u 1001
 # 2. the Next build output and static files
 # 3. the node_modules.
 WORKDIR /app
-COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/package.json /app/yarn.lock* ./
+COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/package.json /app/package-lock* ./
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/public ./public
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/.next ./.next
 
 # 4. OPTIONALLY the next.config.js, if your app has one
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/next.config.js  ./
-COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/.babelrc  ./
+#COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/.babelrc  ./
 
 USER nextjs
 
 EXPOSE 3000
 
-CMD [ "yarn", "start" ]
+CMD [ "npm", "start" ]
 

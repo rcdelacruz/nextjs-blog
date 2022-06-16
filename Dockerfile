@@ -57,7 +57,8 @@ COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/public ./public
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/.next ./.next
 
 # 4. OPTIONALLY the next.config.js, if your app has one
-# COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/next.config.js  ./
+COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/next.config.js  ./
+COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/.babelrc  ./
 
 USER nextjs
 
